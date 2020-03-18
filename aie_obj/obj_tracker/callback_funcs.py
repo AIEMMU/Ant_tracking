@@ -22,7 +22,6 @@ class FitStartCallBack(Callback):
 
     def after_pred(self):
         self.run.n_iter += 1
-        print(self.run.n_iter)
 
 
 class VidWriter():

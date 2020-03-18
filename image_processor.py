@@ -43,7 +43,6 @@ def get_centroids_pyrdown(contours, min_value=100, max_value=500,id=None):
                 centroids.append((bb(c*2), id))
             else:
                 centroids.append(bb(c * 2))
-    print (centroids)
     return centroids
 
 def get_centroids_pyrdown_no_area(contours, min_value=50, id=None):
