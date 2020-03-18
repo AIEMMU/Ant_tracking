@@ -54,14 +54,18 @@ class VidWriterCallback(Callback):
         self.vw.write_to_video(self.run.frame)
 
 class DrawRect(Callback):
-    _order=1
+    _order=-1
     def after_pred(self):
+
         [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0,255,0), 2) for c in self.run.pred]
 
-class DrawRectMultipleTrackers(Callback):
-    _order=1
+class DrawRectMutli(Callback):
+    _order=-1
     def after_pred(self):
-        [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0,255,0), 2) for c in self.run.pred[0]]
+        preds = [c[0] for c in self.run.pred]
+        [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0, 255, 0), 2) for c in preds]
+
+
 class DrawVerticalLines(Callback):
     _order=1
     def __init__(self,x,x2):
@@ -88,7 +92,7 @@ class CropFrame(Callback):
     _order=1
     def setCrop(self, crop):
         if self.x > 0 and self.y > 0 and crop[0] >0 and crop[1] >0:
-            print(f"the crop{crop}")
+
             self.x += crop[0]
             self.y += crop[1]
             self.w, self.h = crop[2:]

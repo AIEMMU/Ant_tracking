@@ -15,7 +15,7 @@ class DisplayViewModel():
     def __init__(self, enableButtons, getPixmap):
         self.enableButtons, self.getPixmap = enableButtons, getPixmap
         self.threadpool = QThreadPool()
-        print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
+
 
     def load_video(self):
         fn, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Select Video", "", "Video Files (*.mp4)")
@@ -56,7 +56,7 @@ class DisplayViewModel():
     #multithreading
     def execute_this_fn(self, stats, progress_callback):
         progress_callback.emit(stats)
-        self.tracker.fit(cbs=[yeild_frame_stats(stats), DrawScores(), DrawID(),DrawRect()])
+        self.tracker.fit(cbs=[yeild_frame_stats(stats), DrawScores(), DrawID()])
         stats.completed=True
         return "DONE"
 
@@ -78,10 +78,13 @@ class DisplayViewModel():
         pb = ProgressBar()
         progress = Progress(pb, QApplication.processEvents)
         progress.x = 0
-        func = partial(self.tracker.fit,cbs=[VidWriterCallback(VidWriter(fn, self.tracker.frame.shape[1], self.tracker.frame.shape[0])), yeild_progression(progress),  DrawScores()])
-        th = threading.Thread(target=func)
-        th.start()
-        th.join()
+        # func = partial(self.tracker.fit,cbs=[VidWriterCallback(VidWriter(fn, self.tracker.frame.shape[1], self.tracker.frame.shape[0])), yeild_progression(progress),  DrawScores()])
+        # th = threading.Thread(target=func)
+        # th.start()
+        # th.join()
+        self.tracker.fit( cbs = [
+            VidWriterCallback(VidWriter(fn, self.tracker.frame.shape[1], self.tracker.frame.shape[0])),
+            yeild_progression(progress), DrawScores()])
         pb.close()
         f2(True)
         return True

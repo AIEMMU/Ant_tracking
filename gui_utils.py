@@ -116,12 +116,11 @@ def selectRegion(frame, num):
     return rects
 
 def get_tfms(settings):
-    print(settings)
     if settings[2] %2==0: settings[2]+=1
     f1 = cv2.pyrDown
     f2 = partial(adaptThreshold, blurSize=settings[0],thresh = settings[1], block_size =settings[2], offset = settings[3] )
-    f3 = partial(get_centroids_pyrdown, min_value=settings[4], max_value = settings[5])
-    f4 = partial(get_centroids_pyrdown, min_value=settings[6], max_value=settings[7])
+    f3 = partial(get_centroids_pyrdown, min_value=settings[4], max_value = settings[5], id='ant')
+    f4 = partial(get_centroids_pyrdown, min_value=settings[6], max_value=settings[7], id='leaf')
     return [f1,f2,getContours,f3], [f1,color_mask,getContours,f4]
 
 def get_pos(m):

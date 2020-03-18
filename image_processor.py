@@ -13,7 +13,6 @@ def color_mask(x, lower=(36, 25, 25), upper=(86, 255, 255)):
 def draw_text(frame, text, pos, color=(0,0,255), font_scale=0.6,line_thickness=2):
     return cv2.putText(frame, text, pos,cv2.FONT_HERSHEY_SIMPLEX, font_scale, color, line_thickness)
 
-
 def draw_rect(frame, startPos, endPos, color=(0,255,0), line_thickness=2):
     return cv2.rectangle(frame, startPos, endPos, color, line_thickness)
 
@@ -40,10 +39,11 @@ def get_centroids_pyrdown(contours, min_value=100, max_value=500,id=None):
     for c in contours:
         area = getArea(c)
         if area >= min_value and area <=max_value:
-            centroids.append(bb(c*2))
-    if id is not None:
-        ids = [id]* len(centroids)
-        return centroids, ids
+            if id is not None:
+                centroids.append((bb(c*2), id))
+            else:
+                centroids.append(bb(c * 2))
+    print (centroids)
     return centroids
 
 def get_centroids_pyrdown_no_area(contours, min_value=50, id=None):

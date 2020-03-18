@@ -54,7 +54,6 @@ class SettingsWindow(QtWidgets.QDialog):
 
     def sliderChanged(self):
         settings = self.get_sliderSettings()
-        print(settings)
         self.model.updateLayers(settings)
         pixmap = self.model.get_pixmap(self.videoSlider.value())
         self.set_pixmap(pixmap)
