@@ -11,23 +11,23 @@ class LeftRight():
         self.left = 0
         self.right = 0
         self.trackableObjects = {}
+
     def setPos(self, l,r):
         self.pos_left, self.pos_right = l,r
-    def is_right(self, dir, cur_x, init_x):
 
+    def is_right(self, dir, cur_x, init_x):
         if dir > 0 and cur_x > self.pos_right and init_x < self.pos_right:
-            self.right+=1
             return True
         return False
 
     def is_left(self, dir, cur_x, init_x):
         if dir < 0 and cur_x < self.pos_left and init_x > self.pos_left:
-            self.left+=1
             return True
         return False
 
     def update(self, objId, centroid, i):
         to = self.trackableObjects.get(objId, None)
+
         if to is None:
             to = self.recorder(objId, centroid)
             to.entryFrame = i
@@ -35,22 +35,21 @@ class LeftRight():
             x = [c[0] for c in to.centroids]
             direction = centroid[0] - np.mean(x)
             to.centroids.append(centroid)
-            if not to.counted:
-                if self.is_right(direction, centroid[0], x[0]):
-                    to.counted = True
-                    to.dir = 'right'
-                elif self.is_left(direction, centroid[0], x[0]) :
-                    to.counted = True
-                    to.dir = 'left'
-            # elif to.counted:
-            #     if self.is_right(direction, centroid[0], x[0]) and to.dir is not 'right':
-            #         to.counted = True
-            #         to.dir = 'right'
-            #     elif self.is_left(direction, centroid[0], x[0])  and to.dir is not 'left' :
-            #         to.counted = True
-            #         to.dir = 'left'
 
+            if self.is_right(direction, centroid[0], x[0]):
+                to.dir = 'right'
+            elif self.is_left(direction, centroid[0], x[0]):
+                to.dir = 'left'
         self.trackableObjects[objId] = to
+
+    def updateLeftRight(self, objID):
+        to = self.trackableObjects[objID]
+        if to.dir != '':
+            if to.dir=='right':
+                self.right+=1
+            elif to.dir=='left':
+                self.left +=1
+        del self.trackableObjects[objID]
         return self.left, self.right
 
     def export(self, fn):
@@ -60,7 +59,7 @@ class LeftRight():
         dir = []
         entryFrame = []
         for k, v in self.trackableObjects.items():
-            if v.counted:
+            if v.dir !='':
                 ids.append(k)
                 points = np.array(v.centroids).T
                 dir.append(v.dir)
@@ -72,6 +71,7 @@ class LeftRight():
         df.to_pickle(fn)
 
 from aie_obj.obj_tracker.callbacks import *
+
 class LeftRightCallback(Callback):
     _order = 1
 
@@ -87,8 +87,12 @@ class LeftRightCallback(Callback):
         self.left_right.setPos(l,r)
 
     def after_obj_tracker(self):
-        for obj, centroid in self.run.stats.items():
-            self.left, self.right = self.left_right.update(obj, centroid, self.run.n_iter)
-
+        for (obj, centroid) in self.run.stats[0].items():
+            self.left_right.update(obj, centroid, self.run.n_iter)
+        print(f'There are {len(self.run.stats[1])} that have been removed')
+        for obj in self.run.stats[1]:
+            print("Hey there!")
+            self.left, self.right = self.left_right.updateLeftRight(obj)
+        print(self.left, self.right)
     def export(self, fn):
         self.left_right.export(fn)

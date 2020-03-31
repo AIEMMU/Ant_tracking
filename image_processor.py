@@ -1,5 +1,5 @@
 import cv2
-
+from nms import*
 def make_bgr(x): return cv2.cvtColor(x, cv2.COLOR_LAB2BGR)
 def make_lab(x): return cv2.cvtColor(x, cv2.COLOR_BGR2LAB)
 def make_gray(x): return cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)
@@ -21,7 +21,7 @@ def draw_line(frame, startPos, endPos, color=(0,255,0), line_thickness=2):
 def draw_circle(frame, pos, radius=4, color = (0, 0, 255), fillMode = -1):
     return cv2.circle(frame, pos, radius, color, fillMode)
 def bb(c):
-    x,y,w,h = cv2.cv2.boundingRect(c)
+    x,y,w,h = cv2.boundingRect(c)
     return (x,y,x+w,y+h)
 
 def getArea(c): return cv2.contourArea(c)
@@ -32,6 +32,8 @@ def get_centroids(contours, min_value=100, max_value=500,):
         area = getArea(c)
         if area >= min_value and area <=max_value:
             centroids.append(bb(c))
+    centroids = [tuple(c) for c in non_max_suppression_fast(np.array(centroids), 0.5)]
+
     return centroids
 
 def get_centroids_pyrdown(contours, min_value=100, max_value=500,id=None):
@@ -39,22 +41,10 @@ def get_centroids_pyrdown(contours, min_value=100, max_value=500,id=None):
     for c in contours:
         area = getArea(c)
         if area >= min_value and area <=max_value:
-            if id is not None:
-                centroids.append((bb(c*2), id))
-            else:
-                centroids.append(bb(c * 2))
-    return centroids
-
-def get_centroids_pyrdown_no_area(contours, min_value=50, id=None):
-    centroids = []
-    for c in contours:
-        area = getArea(c)
-        if area >= min_value:
-            centroids.append(bb(c*2))
+            centroids.append(bb(c * 2))
+    centroids = [tuple(c) for c in non_max_suppression_fast(np.array(centroids), 0.5)]
     if id is not None:
-        ids = [id]* len(centroids)
-        ids = [id]* len(centroids)
-        return centroids, ids
+        centroids = [(tuple(c), id) for c in centroids]
     return centroids
 
 def clahe(img, clipLimit=2., tileGridSize= (8,8)):
@@ -65,6 +55,9 @@ def clahe(img, clipLimit=2., tileGridSize= (8,8)):
     lab_planes[0] = clahe.apply(lab_planes[0])
     lab = cv2.merge(lab_planes)
     return make_bgr(lab)
+
+def brightness(img, alpha=3, beta=50):
+    return cv2.convertScaleAbs(img.copy(), alpha=alpha, beta=beta)
 
 def adaptThreshold(img,blurSize=(5,5),thresh= 255, block_size=51, offset=20 ):
     blurSize = (blurSize, blurSize) if isinstance(blurSize, int) else tuple(blurSize)

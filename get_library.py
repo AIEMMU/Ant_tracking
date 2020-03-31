@@ -14,7 +14,7 @@ def get_ant_tracker():
     return obj_tracker([cv2.pyrDown, adaptThreshold, getContours, partial(get_centroids_pyrdown, id='ant')])
 
 def get_leaf_tracker():
-    return obj_tracker([cv2.pyrDown,  make_hsv, color_mask,getContours, partial(get_centroids_pyrdown, min_value=50, max_value = 500, id='leaf')])
+    return obj_tracker([cv2.pyrDown, brightness,  make_hsv, color_mask,getContours, partial(get_centroids_pyrdown, min_value=50, max_value = 500, id='leaf')])
 
 def get_tracker(data):
     h,w = data.video_ds[0].shape[:2]

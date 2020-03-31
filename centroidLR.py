@@ -1,9 +1,11 @@
 from aie_obj.stats_tracking.centroidtracker import *
-
+from nms import *
 class CentroidTrackerLR(CentroidTracker):
     def __init__(self, maxDisappeared=50,maxDistance=50, lpos=0, rpos=0,):
+        print(maxDisappeared,maxDistance)
         super().__init__(maxDisappeared=maxDisappeared, maxDistance=maxDistance)
         self.lpos, self.rpos = lpos,rpos
+        self.removed=[]
 
     def reset(self):
         super().reset()
@@ -11,19 +13,27 @@ class CentroidTrackerLR(CentroidTracker):
     def register(self, centroid):
         # when registering an object we use the next available object
         # ID to store the centroid
-        # if centroid[0] <=self.lpos or centroid[0]>= self.rpos: return
-        id = f'{self.id}_{self.nextObjectID}'
-        self.objects[id] = centroid
-        self.disappeared[id] = 0
-        self.nextObjectID += 1
+        if centroid[0] >=self.lpos and centroid[0]<= self.rpos:
+            id = f'{self.id}_{self.nextObjectID}'
+            self.objects[id] = centroid
+            self.disappeared[id] = 0
+            self.nextObjectID += 1
 
     def setPos(self, lpos, rpos):
         self.lpos, self.rpos = lpos, rpos
 
+    def deregister(self, objectID):
+        # to deregister an object ID we delete the object ID from
+        # both of our respective dictionaries
+        del self.objects[objectID]
+        del self.disappeared[objectID]
+        self.removed.append(objectID)
+
     def update(self, rects):  #
         # check to see if the list of input bounding box rectangles
         # is empty
-
+        self.removed = []
+        print(self.maxDisappeared, self.maxDistance)
         if len(rects) == 0:
             # loop over any existing tracked objects and mark them
             # as disappeared
@@ -38,20 +48,20 @@ class CentroidTrackerLR(CentroidTracker):
 
             # return early as there are no centroids or tracking info
             # to update
-            return self.objects
-
+            return self.objects, self.removed
         # initialize an array of input centroids for the current frame
-        inputCentroids = np.zeros((len(rects), 2), dtype="int")
-        ids = ['']*len(rects)
+
+        centroids = [c[0] for c in rects]
+        ids = [c[1] for c in rects]
+
+        inputCentroids = np.zeros((len(centroids), 2), dtype="int")
 
         # loop over the bounding box rectangles
-        for (i, ((startX, startY, endX, endY),id)) in enumerate(rects):
+        for (i, (startX, startY, endX, endY)) in enumerate(centroids):
             # use the bounding box coordinates to derive the centroid
             cX = int((startX + endX) / 2.0)
             cY = int((startY + endY) / 2.0)
             inputCentroids[i] = (cX, cY)
-            ids[i] = id
-
         # if we are currently not tracking any objects take the input
         # centroids and register each of them
         if len(self.objects) == 0:
@@ -144,4 +154,4 @@ class CentroidTrackerLR(CentroidTracker):
                     self.register(inputCentroids[col])
 
         # return the set of trackable objects
-        return self.objects
+        return self.objects, self.removed

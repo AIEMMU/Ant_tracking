@@ -42,11 +42,7 @@ class Tracker():
         return self.frame
 
     def get_pred(self):
-        preds=[]
         return [element for lis in [pred(self.frame.copy()) for pred in listify(self.obj_tracker)] for element in lis]
-        # for pred in listify(self.obj_tracker):
-        #     preds = preds+pred(self.frame.copy())
-        # return preds
 
     def predict(self, frame):
         try:

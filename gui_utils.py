@@ -121,7 +121,7 @@ def get_tfms(settings):
     f2 = partial(adaptThreshold, blurSize=settings[0],thresh = settings[1], block_size =settings[2], offset = settings[3] )
     f3 = partial(get_centroids_pyrdown, min_value=settings[4], max_value = settings[5], id='ant')
     f4 = partial(get_centroids_pyrdown, min_value=settings[6], max_value=settings[7], id='leaf')
-    return [f1,f2,getContours,f3], [f1,color_mask,getContours,f4]
+    return [f1,brightness, f2,getContours,f3], [f1,color_mask,getContours,f4]
 
 def get_pos(m):
     if m[0][0] < m[1][0]:

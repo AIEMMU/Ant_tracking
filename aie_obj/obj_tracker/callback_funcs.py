@@ -55,12 +55,12 @@ class VidWriterCallback(Callback):
 class DrawRect(Callback):
     _order=-1
     def after_pred(self):
-
         [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0,255,0), 2) for c in self.run.pred]
 
 class DrawRectMutli(Callback):
     _order=-1
     def after_pred(self):
+
         preds = [c[0] for c in self.run.pred]
         [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0, 255, 0), 2) for c in preds]
 
@@ -82,6 +82,13 @@ class DrawID(Callback):
     _order=2
     def after_pred(self):
         for obj, centroid in self.run.stats.items():
+            text = f'ID {obj}'
+            draw_text(self.run.frame, text, (centroid[0]-10, centroid[1]-10))
+            draw_circle(self.run.frame, (centroid[0], centroid[1]))
+class DrawIDMulti(Callback):
+    _order=2
+    def after_pred(self):
+        for obj, centroid in self.run.stats[0].items():
             text = f'ID {obj}'
             draw_text(self.run.frame, text, (centroid[0]-10, centroid[1]-10))
             draw_circle(self.run.frame, (centroid[0], centroid[1]))

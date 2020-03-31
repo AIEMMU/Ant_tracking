@@ -19,8 +19,16 @@ class DataLoader:
     def __iter__(self):
         self.ds[0]
         for i in range(len(self.ds)): yield self.ds.read()
-        for i in range(len(self.ds)): yield self.ds.read()
 
+class DataLoader_skip:
+    def __init__(self, ds, skip=4): self.ds, self.skip = ds,skip
+    def __iter__(self):
+        self.ds[0]
+        for i in range(len(self.ds)):
+            if i % self.skip!=0:
+                print("skip")
+                continue
+            yield self.ds.read()
 
 class DataBunch():
     def __init__(self, video_dl):
@@ -30,4 +38,4 @@ class DataBunch():
     def video_ds(self): return self.video_dl.ds
 
 def get_db(fn, **kwargs):
-    return DataBunch(DataLoader(Dataset(get_video(fn))))
+    return DataBunch(DataLoader_skip(Dataset(get_video(fn)),3))
