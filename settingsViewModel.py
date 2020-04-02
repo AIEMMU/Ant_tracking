@@ -27,7 +27,7 @@ class SettingsViewModel():
     def updateLayers(self, settings):
         ant,leaf = self.get_tfms(settings)
         self.tracker.obj_tracker[0].layers= ant
-        # self.tracker.obj_tracker[1].layers = leaf
+        self.tracker.obj_tracker[1].layers = leaf
 
     def selectCrop(self,):
         self.reset()
