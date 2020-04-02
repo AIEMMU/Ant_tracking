@@ -55,6 +55,7 @@ class VidWriterCallback(Callback):
 class DrawRect(Callback):
     _order=-1
     def after_pred(self):
+        print(f"Frame size {self.run.frame.shape}")
         [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0,255,0), 2) for c in self.run.pred]
 
 class DrawRectMutli(Callback):
@@ -62,6 +63,7 @@ class DrawRectMutli(Callback):
     def after_pred(self):
 
         preds = [c[0] for c in self.run.pred]
+        print(f"Frame size {self.run.frame.shape}")
         [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0, 255, 0), 2) for c in preds]
 
 
@@ -77,6 +79,20 @@ class DrawVerticalLines(Callback):
     def after_pred(self):
         draw_line(self.run.frame, (self.x,0), (self.x, self.run.frame.shape[0]))
         draw_line(self.run.frame, (self.x2, 0), (self.x2, self.run.frame.shape[0]))
+
+class DrawBoundingBoxes(Callback):
+    _order=1
+    def __init__(self,x,x2):
+        self.x = x
+        self.x2 = x2
+
+    def setPos(self, x,x2):
+        self.x = x
+        self.x2 = x2
+
+    def after_pred(self):
+        draw_rect(self.run.frame, (0, self.x[1]), (self.x[0], self.x[1]+self.x[2]))
+        draw_rect(self.run.frame, (self.x2[0], self.x2[1]), (self.x2[0]+self.run.frame.shape[0], self.x2[1]+self.x2[2]))
 
 class DrawID(Callback):
     _order=2

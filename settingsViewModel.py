@@ -11,7 +11,7 @@ class SettingsViewModel():
          self.four_transform = four_transform
          self.orig_h, self.orig_w = tracker.data.video_ds[0].shape[:2]
          self.tracker.warp_frame.reset(np.array([0, 0, self.orig_w, self.orig_h]))
-         self.tracker.draw_vertical_lines.setPos(0,self.orig_w)
+         self.tracker.draw_bounding_boxes.setPos([0,0,0],[self.orig_w,0,0])
 
     def get_length(self):
         return len(self.tracker.data.video_dl.ds)
@@ -27,7 +27,7 @@ class SettingsViewModel():
     def updateLayers(self, settings):
         ant,leaf = self.get_tfms(settings)
         self.tracker.obj_tracker[0].layers= ant
-        self.tracker.obj_tracker[1].layers = leaf
+        # self.tracker.obj_tracker[1].layers = leaf
 
     def selectCrop(self,):
         self.reset()
@@ -40,12 +40,12 @@ class SettingsViewModel():
     def adjustROI(self, m):
         self.lPos = (self.lPos - m[0])
         self.rPos = self.rPos - m[0]
-        self.tracker.draw_vertical_lines.setPos(self.lPos, self.rPos)
+        self.tracker.draw_bounding_boxes.setPos([0, 0, 0], [self.orig_w, 0, 0])
 
     def selectROI(self, ):
         m = self.selectRegion(self.tracker.frame.copy(), 2)
         self.lPos, self.rPos  = self.get_pos(m)
-        self.tracker.draw_vertical_lines.setPos(self.lPos, self.rPos)
+        self.tracker.draw_bounding_boxes.setPos(self.lPos, self.rPos)
         self.tracker.left_right.setPos(self.lPos, self.rPos)
         self.tracker.stats_tracker.setPos(self.lPos, self.rPos)
         return self.updateFrame()
@@ -54,7 +54,7 @@ class SettingsViewModel():
         self.lPos = None
         self.rPos = None
         self.tracker.stats_tracker.reset()
-        self.tracker.draw_vertical_lines.setPos(0, self.orig_w)
+        self.tracker.draw_bounding_boxes.setPos([0, 0, 0], [self.orig_w, 0, 0])
         self.tracker.warp_frame.reset([0, 0, self.orig_w, self.orig_h])
 
         return self.updateFrame()

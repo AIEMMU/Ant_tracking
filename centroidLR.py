@@ -13,11 +13,11 @@ class CentroidTrackerLR(CentroidTracker):
     def register(self, centroid):
         # when registering an object we use the next available object
         # ID to store the centroid
-        if centroid[0] >=self.lpos and centroid[0]<= self.rpos:
-            id = f'{self.id}_{self.nextObjectID}'
-            self.objects[id] = centroid
-            self.disappeared[id] = 0
-            self.nextObjectID += 1
+        # if centroid[0] >=self.lpos and centroid[0]<= self.rpos:
+        id = f'{self.id}_{self.nextObjectID}'
+        self.objects[id] = centroid
+        self.disappeared[id] = 0
+        self.nextObjectID += 1
 
     def setPos(self, lpos, rpos):
         self.lpos, self.rpos = lpos, rpos
@@ -113,6 +113,7 @@ class CentroidTrackerLR(CentroidTracker):
                 # otherwise, grab the object ID for the current row,
                 # set its new centroid, and reset the disappeared
                 # counter
+
                 objectID = objectIDs[row]
                 self.objects[objectID] = inputCentroids[col]
                 self.disappeared[objectID] = 0

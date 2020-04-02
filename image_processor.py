@@ -14,6 +14,7 @@ def draw_text(frame, text, pos, color=(0,0,255), font_scale=0.6,line_thickness=2
     return cv2.putText(frame, text, pos,cv2.FONT_HERSHEY_SIMPLEX, font_scale, color, line_thickness)
 
 def draw_rect(frame, startPos, endPos, color=(0,255,0), line_thickness=2):
+    print(frame.shape)
     return cv2.rectangle(frame, startPos, endPos, color, line_thickness)
 
 def draw_line(frame, startPos, endPos, color=(0,255,0), line_thickness=2):

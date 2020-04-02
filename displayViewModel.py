@@ -78,10 +78,6 @@ class DisplayViewModel():
         pb = ProgressBar()
         progress = Progress(pb, QApplication.processEvents)
         progress.x = 0
-        # func = partial(self.tracker.fit,cbs=[VidWriterCallback(VidWriter(fn, self.tracker.frame.shape[1], self.tracker.frame.shape[0])), yeild_progression(progress),  DrawScores()])
-        # th = threading.Thread(target=func)
-        # th.start()
-        # th.join()
         self.tracker.fit( cbs = [
             VidWriterCallback(VidWriter(fn, self.tracker.frame.shape[1], self.tracker.frame.shape[0])),
             yeild_progression(progress), DrawScores()])
@@ -96,6 +92,6 @@ class DisplayViewModel():
             self.tracker.left_right.export(fn)
             QMessageBox.information(vm, "Message", "Results have been exported")
         except:
-           QMessageBox.information(vm, "Message", "There were no results to export")
+            QMessageBox.information(vm, "Message", "There were no results to export")
 
 

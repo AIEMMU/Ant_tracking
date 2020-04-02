@@ -5,3 +5,4 @@ class TrackableObject:
         self.centroids = [centroids]
         self.dir = ''
         self.entryFrame= 0
+        self.in_space = 0

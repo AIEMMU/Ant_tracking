@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 class LeftRight():
-    def __init__(self, recorder = None, pos_left=0, pos_right =0):
+    def __init__(self, recorder = None, pos_left=[], pos_right =[]):
         self.trackableObjects, self.recorder, self.pos_left, self.pos_right = {}, recorder, pos_left, pos_right
         self.left = 0
         self.right = 0
@@ -15,14 +15,19 @@ class LeftRight():
     def setPos(self, l,r):
         self.pos_left, self.pos_right = l,r
 
-    def is_right(self, dir, cur_x, init_x):
-        if dir > 0 and cur_x > self.pos_right and init_x < self.pos_right:
-            return True
+    def is_right(self, dir, cur_pos, init_x, init_y):
+
+        if dir > 0:
+            if cur_pos[0] > self.pos_right[0] and init_x < self.pos_right[0]:
+                if cur_pos[1] > self.pos_right[1] and cur_pos[1] < self.pos_right[1] + self.pos_right[2]:
+                    return True
         return False
 
-    def is_left(self, dir, cur_x, init_x):
-        if dir < 0 and cur_x < self.pos_left and init_x > self.pos_left:
-            return True
+    def is_left(self, dir, cur_pos, init_x, init_y):
+        if dir < 0:
+            if cur_pos[0] < self.pos_left[0] and init_x > self.pos_left[0]:
+                if cur_pos[1] > self.pos_left[1] and cur_pos[1] < self.pos_left[1] + self.pos_left[2]:
+                    return True
         return False
 
     def update(self, objId, centroid, i):
@@ -31,15 +36,20 @@ class LeftRight():
         if to is None:
             to = self.recorder(objId, centroid)
             to.entryFrame = i
+        # elif to.in_space>=30:
+        #     self.updateLeftRight(objId)
         else:
             x = [c[0] for c in to.centroids]
+            y = [c[1] for c in to.centroids][-1]
             direction = centroid[0] - np.mean(x)
             to.centroids.append(centroid)
 
-            if self.is_right(direction, centroid[0], x[0]):
+            if self.is_right(direction, centroid, x[0], y):
                 to.dir = 'right'
-            elif self.is_left(direction, centroid[0], x[0]):
+                to.in_space+=1
+            elif self.is_left(direction, centroid, x[0], y):
                 to.dir = 'left'
+                to.in_space += 1
         self.trackableObjects[objId] = to
 
     def updateLeftRight(self, objID):
@@ -57,9 +67,18 @@ class LeftRight():
         x = []
         y = []
         dir = []
+        distances = []
+        speeds = []
         entryFrame = []
         for k, v in self.trackableObjects.items():
             if v.dir !='':
+                distance = 0
+                for j in range(1,len(v.centroids)):
+                    distance += np.linalg.norm(v.centroids[j-1] - v.centroids[j])
+                # 60 fps, skipping 10 frames  tp get speed per second then need a pixel measurement
+                speed = distance/((len(v.centroids)*5) / 60.)
+                distances.append(distance)
+                speeds.append(speed)
                 ids.append(k)
                 points = np.array(v.centroids).T
                 dir.append(v.dir)
@@ -67,7 +86,7 @@ class LeftRight():
                 x.append(points[0])
                 y.append(points[1])
 
-        df = pd.DataFrame({'id': ids, 'cx': x, 'cy': y, 'entryFrame': entryFrame, 'dir': dir})
+        df = pd.DataFrame({'id': ids, 'cx': x, 'cy': y, 'entryFrame': entryFrame, 'dir': dir, 'distance': distances, 'speed': speeds})
         df.to_pickle(fn)
 
 from aie_obj.obj_tracker.callbacks import *
@@ -89,10 +108,9 @@ class LeftRightCallback(Callback):
     def after_obj_tracker(self):
         for (obj, centroid) in self.run.stats[0].items():
             self.left_right.update(obj, centroid, self.run.n_iter)
-        print(f'There are {len(self.run.stats[1])} that have been removed')
+
         for obj in self.run.stats[1]:
-            print("Hey there!")
             self.left, self.right = self.left_right.updateLeftRight(obj)
-        print(self.left, self.right)
+
     def export(self, fn):
         self.left_right.export(fn)
