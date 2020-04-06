@@ -119,11 +119,11 @@ def get_tfms(settings):
     if settings[2] %2==0: settings[2]+=1
     f1 = cv2.pyrDown
     f2 = partial(adaptThreshold, blurSize=settings[0],thresh = settings[1], block_size =settings[2], offset = settings[3] )
-    f3 = partial(get_centroids_pyrdown, min_value=settings[4], max_value = settings[5], id='ant')
+    f3 = partial(get_centroids_pyrdown, min_value=settings[4], max_value = settings[5], id='ant' )
+
     f4 = partial(get_centroids_pyrdown, min_value=settings[6], max_value=settings[7], id='leaf')
 
-    ant = [cv2.pyrDown, brightness,adaptThreshold, getContours, partial(get_centroids_pyrdown, id='ant')]
-    return [f1, brightness, f2,getContours,f3], [f1,color_mask,getContours,f4]
+    return [f1,brightness, f2,addBorder, getContours,f3], [f1,make_hsv, color_mask,addBorder,getContours,f4]
 
 def get_pos(m):
     if m[0][0] < m[1][0]:
@@ -138,7 +138,7 @@ def get_pos(m):
 
 def set_values(f):
     names = [ 'blurSize', 'thresh', 'blockSize', 'offset', 'minArea', 'maxArea','minArea_2', 'maxArea_2']
-    values = [ 5, 255, 51, 20, 100, 500,50, 500]
+    values = [ 5, 255, 51, 20, 10, 500,50, 500]
     max = [ 15, 255, 100, 100, 499, 1000, 499, 2000]
 
     sliders = [set_sliders(f ,n, v, mv) for n, v, mv in zip(names, values, max)]

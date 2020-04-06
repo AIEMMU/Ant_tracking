@@ -28,7 +28,6 @@ class SettingsViewModel():
         ant,leaf = self.get_tfms(settings)
         self.tracker.obj_tracker[0].layers= ant
         self.tracker.obj_tracker[1].layers = leaf
-
     def selectCrop(self,):
         self.reset()
         p = self.get_corners(self.tracker.frame.copy())

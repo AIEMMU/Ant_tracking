@@ -1,11 +1,15 @@
 from aie_obj.stats_tracking.centroidtracker import *
 from nms import *
+from scipy.optimize import linear_sum_assignment
+
+
 class CentroidTrackerLR(CentroidTracker):
     def __init__(self, maxDisappeared=50,maxDistance=50, lpos=0, rpos=0,):
         print(maxDisappeared,maxDistance)
         super().__init__(maxDisappeared=maxDisappeared, maxDistance=maxDistance)
         self.lpos, self.rpos = lpos,rpos
         self.removed=[]
+        self.id='ant'
 
     def reset(self):
         super().reset()
@@ -33,7 +37,6 @@ class CentroidTrackerLR(CentroidTracker):
         # check to see if the list of input bounding box rectangles
         # is empty
         self.removed = []
-        print(self.maxDisappeared, self.maxDistance)
         if len(rects) == 0:
             # loop over any existing tracked objects and mark them
             # as disappeared
@@ -49,19 +52,18 @@ class CentroidTrackerLR(CentroidTracker):
             # return early as there are no centroids or tracking info
             # to update
             return self.objects, self.removed
+
         # initialize an array of input centroids for the current frame
-
-        centroids = [c[0] for c in rects]
-        ids = [c[1] for c in rects]
-
-        inputCentroids = np.zeros((len(centroids), 2), dtype="int")
-
+        inputCentroids = np.zeros((len(rects), 2), dtype="int")
+        ids = ['']*len(rects)
         # loop over the bounding box rectangles
-        for (i, (startX, startY, endX, endY)) in enumerate(centroids):
+        for (i,((startX, startY, endX, endY), id)) in enumerate(rects):
             # use the bounding box coordinates to derive the centroid
             cX = int((startX + endX) / 2.0)
             cY = int((startY + endY) / 2.0)
             inputCentroids[i] = (cX, cY)
+            ids[i] = id
+
         # if we are currently not tracking any objects take the input
         # centroids and register each of them
         if len(self.objects) == 0:
@@ -82,7 +84,7 @@ class CentroidTrackerLR(CentroidTracker):
             # goal will be to match an input centroid to an existing
             # object centroid
             D = dist.cdist(np.array(objectCentroids), inputCentroids)
-
+            row_ings, col_inds = linear_sum_assignment(D)
             # in order to perform this matching we must (1) find the
             # smallest value in each row and then (2) sort the row
             # indexes based on their minimum values so that the row
@@ -94,6 +96,8 @@ class CentroidTrackerLR(CentroidTracker):
             # finding the smallest value in each column and then
             # sorting using the previously computed row index list
             cols = D.argmin(axis=1)[rows]
+            print("hey there sailor", rows,row_ings)
+            print("Hey there sailor 2.0",cols,col_inds)
 
             # in order to determine if we need to update, register,
             # or deregister an object we need to keep track of which
@@ -103,7 +107,7 @@ class CentroidTrackerLR(CentroidTracker):
 
             # loop over the combination of the (row, column) index
             # tuples
-            for (row, col) in zip(rows, cols):
+            for (row, col) in zip(row_ings, col_inds):
                 # if we have already examined either the row or
                 # column value before, ignore it
                 # val
@@ -113,7 +117,6 @@ class CentroidTrackerLR(CentroidTracker):
                 # otherwise, grab the object ID for the current row,
                 # set its new centroid, and reset the disappeared
                 # counter
-
                 objectID = objectIDs[row]
                 self.objects[objectID] = inputCentroids[col]
                 self.disappeared[objectID] = 0
@@ -151,7 +154,6 @@ class CentroidTrackerLR(CentroidTracker):
             # register each new input centroid as a trackable object
             else:
                 for col in unusedCols:
-                    self.id = ids[col]
                     self.register(inputCentroids[col])
 
         # return the set of trackable objects

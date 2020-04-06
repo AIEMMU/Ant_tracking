@@ -16,7 +16,6 @@ class DisplayViewModel():
         self.enableButtons, self.getPixmap = enableButtons, getPixmap
         self.threadpool = QThreadPool()
 
-
     def load_video(self):
         fn, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Select Video", "", "Video Files (*.mp4)")
         if not fn: return
@@ -56,7 +55,8 @@ class DisplayViewModel():
     #multithreading
     def execute_this_fn(self, stats, progress_callback):
         progress_callback.emit(stats)
-        self.tracker.fit(cbs=[yeild_frame_stats(stats), DrawScores(), DrawIDMulti()])
+        self.tracker.fit(cbs=[test(stats), DrawIDMulti()])
+        # self.tracker.fit(cbs=[yeild_frame_stats(stats), DrawScores(), DrawIDMulti()])
         stats.completed=True
         return "DONE"
 

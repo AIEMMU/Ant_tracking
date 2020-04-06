@@ -4,6 +4,7 @@ import pandas as pd
 class LeftRight():
     def __init__(self, recorder = None, pos_left=[], pos_right =[]):
         self.trackableObjects, self.recorder, self.pos_left, self.pos_right = {}, recorder, pos_left, pos_right
+        self.trackedObjects = {}
         self.left = 0
         self.right = 0
 
@@ -36,8 +37,6 @@ class LeftRight():
         if to is None:
             to = self.recorder(objId, centroid)
             to.entryFrame = i
-        # elif to.in_space>=30:
-        #     self.updateLeftRight(objId)
         else:
             x = [c[0] for c in to.centroids]
             y = [c[1] for c in to.centroids][-1]
@@ -59,6 +58,8 @@ class LeftRight():
                 self.right+=1
             elif to.dir=='left':
                 self.left +=1
+
+        self.trackedObjects[objID] = to
         del self.trackableObjects[objID]
         return self.left, self.right
 
@@ -70,21 +71,20 @@ class LeftRight():
         distances = []
         speeds = []
         entryFrame = []
-        for k, v in self.trackableObjects.items():
-            if v.dir !='':
-                distance = 0
-                for j in range(1,len(v.centroids)):
-                    distance += np.linalg.norm(v.centroids[j-1] - v.centroids[j])
-                # 60 fps, skipping 10 frames  tp get speed per second then need a pixel measurement
-                speed = distance/((len(v.centroids)*5) / 60.)
-                distances.append(distance)
-                speeds.append(speed)
-                ids.append(k)
-                points = np.array(v.centroids).T
-                dir.append(v.dir)
-                entryFrame.append(v.entryFrame)
-                x.append(points[0])
-                y.append(points[1])
+        for k, v in self.trackedObjects.items():
+            distance = 0
+            for j in range(1,len(v.centroids)):
+                distance += np.linalg.norm(v.centroids[j-1] - v.centroids[j])
+            # 60 fps, skipping 10 frames  tp get speed per second then need a pixel measurement
+            speed = distance/((len(v.centroids)*5) / 60.)
+            distances.append(distance)
+            speeds.append(speed)
+            ids.append(k)
+            points = np.array(v.centroids).T
+            dir.append(v.dir)
+            entryFrame.append(v.entryFrame)
+            x.append(points[0])
+            y.append(points[1])
 
         df = pd.DataFrame({'id': ids, 'cx': x, 'cy': y, 'entryFrame': entryFrame, 'dir': dir, 'distance': distances, 'speed': speeds})
         df.to_pickle(fn)

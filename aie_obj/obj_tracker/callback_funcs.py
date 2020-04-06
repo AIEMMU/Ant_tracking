@@ -61,10 +61,7 @@ class DrawRect(Callback):
 class DrawRectMutli(Callback):
     _order=-1
     def after_pred(self):
-
-        preds = [c[0] for c in self.run.pred]
-        print(f"Frame size {self.run.frame.shape}")
-        [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0, 255, 0), 2) for c in preds]
+        [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0, 255, 0), 2) for c,i in self.run.pred]
 
 
 class DrawVerticalLines(Callback):
@@ -162,6 +159,14 @@ class yeild_frame_stats(Callback):
         self.stats.tL = self.run.left_right.left
         self.stats.tR = self.run.left_right.right
         #print(self.stats)
+
+class test(Callback):
+    _order=3
+    def __init__(self,stats):
+        self.stats = stats
+
+    def after_pred(self):
+        self.stats.frame = self.run.frame
 
 class yeild_progression(Callback):
     _order=1

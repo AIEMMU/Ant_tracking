@@ -22,6 +22,7 @@ def order_points(pts):
 
 def four_point_transform(image, pts):
     #obtain a consistent order of points and unpack them individually
+    print(pts)
     rect = order_points(pts)
     (tl,tr,br,bl) = rect
 
@@ -57,6 +58,7 @@ class SelectCorner:
     def select_corner_function(self, event, x,y,flags, params):
 
         if event ==cv2.EVENT_LBUTTONUP:
+
             self.addCorner(x,y)
         if event ==cv2.EVENT_RBUTTONUP:
             self.removeCorner()

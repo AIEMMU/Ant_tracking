@@ -27,14 +27,31 @@ def bb(c):
 
 def getArea(c): return cv2.contourArea(c)
 
-def get_centroids(contours, min_value=100, max_value=500,):
+def addBorder(img):
+    kernel = np.ones((5,5),np.uint8)
+    img = cv2.dilate(img, kernel, iterations=1)
+    img = cv2.erode(img, kernel, iterations=1)
+    #
+    h,w = img.shape[:2]
+    rw,rh = int(w*0.01), int(h*0.02)
+    img[:,0:rh] = 0
+    img[:,-rh:] = 0
+    return img
+
+def nms(centroids, thresh=0.5):
+    centroids = non_max_suppression_fast(np.array(centroids), 0.5)
+    centroids = [tuple(c) for c in centroids]
+    return centroids
+def get_centroids(contours, min_value=100, max_value=500,id=None):
     centroids = []
     for c in contours:
         area = getArea(c)
         if area >= min_value and area <=max_value:
             centroids.append(bb(c))
-    centroids = [tuple(c) for c in non_max_suppression_fast(np.array(centroids), 0.5)]
+    centroids = nms(centroids, 0.5)
 
+    if id is not None:
+        centroids = [(tuple(c), id) for c in centroids]
     return centroids
 
 def get_centroids_pyrdown(contours, min_value=100, max_value=500,id=None):
@@ -43,7 +60,8 @@ def get_centroids_pyrdown(contours, min_value=100, max_value=500,id=None):
         area = getArea(c)
         if area >= min_value and area <=max_value:
             centroids.append(bb(c * 2))
-    centroids = [tuple(c) for c in non_max_suppression_fast(np.array(centroids), 0.5)]
+
+    centroids = nms(centroids, 0.5)
     if id is not None:
         centroids = [(tuple(c), id) for c in centroids]
     return centroids
@@ -57,7 +75,7 @@ def clahe(img, clipLimit=2., tileGridSize= (8,8)):
     lab = cv2.merge(lab_planes)
     return make_bgr(lab)
 
-def brightness(img, alpha=3, beta=50):
+def brightness(img, alpha=3, beta=20):
     return cv2.convertScaleAbs(img.copy(), alpha=alpha, beta=beta)
 
 def adaptThreshold(img,blurSize=(5,5),thresh= 255, block_size=51, offset=20 ):
