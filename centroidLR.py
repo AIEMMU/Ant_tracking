@@ -90,20 +90,20 @@ class CentroidTrackerLR(CentroidTracker):
             # indexes based on their minimum values so that the row
             # with the smallest value as at the *front* of the index
             # list
-            rows = D.min(axis=1).argsort()
-
-            # next, we perform a similar process on the columns by
-            # finding the smallest value in each column and then
-            # sorting using the previously computed row index list
-            cols = D.argmin(axis=1)[rows]
-            print("hey there sailor", rows,row_ings)
-            print("Hey there sailor 2.0",cols,col_inds)
-
-            # in order to determine if we need to update, register,
-            # or deregister an object we need to keep track of which
-            # of the rows and column indexes we have already examined
-            usedRows = set()
-            usedCols = set()
+            # rows = D.min(axis=1).argsort()
+            #
+            # # next, we perform a similar process on the columns by
+            # # finding the smallest value in each column and then
+            # # sorting using the previously computed row index list
+            # cols = D.argmin(axis=1)[rows]
+            # print("hey there sailor", rows,row_ings)
+            # print("Hey there sailor 2.0",cols,col_inds)
+            #
+            # # in order to determine if we need to update, register,
+            # # or deregister an object we need to keep track of which
+            # # of the rows and column indexes we have already examined
+            # usedRows = set()
+            # usedCols = set()
 
             # loop over the combination of the (row, column) index
             # tuples
