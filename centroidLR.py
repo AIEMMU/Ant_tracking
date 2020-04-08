@@ -5,7 +5,7 @@ from scipy.optimize import linear_sum_assignment
 
 class CentroidTrackerLR(CentroidTracker):
     def __init__(self, maxDisappeared=50,maxDistance=50, lpos=0, rpos=0,):
-        print(maxDisappeared,maxDistance)
+        # print(maxDisappeared,maxDistance)
         super().__init__(maxDisappeared=maxDisappeared, maxDistance=maxDistance)
         self.lpos, self.rpos = lpos,rpos
         self.removed=[]
@@ -102,8 +102,8 @@ class CentroidTrackerLR(CentroidTracker):
             # # in order to determine if we need to update, register,
             # # or deregister an object we need to keep track of which
             # # of the rows and column indexes we have already examined
-            # usedRows = set()
-            # usedCols = set()
+            usedRows = set()
+            usedCols = set()
 
             # loop over the combination of the (row, column) index
             # tuples

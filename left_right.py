@@ -45,10 +45,8 @@ class LeftRight():
 
             if self.is_right(direction, centroid, x[0], y):
                 to.dir = 'right'
-                to.in_space+=1
             elif self.is_left(direction, centroid, x[0], y):
                 to.dir = 'left'
-                to.in_space += 1
         self.trackableObjects[objId] = to
 
     def updateLeftRight(self, objID):

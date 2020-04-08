@@ -55,8 +55,8 @@ class DisplayViewModel():
     #multithreading
     def execute_this_fn(self, stats, progress_callback):
         progress_callback.emit(stats)
-        self.tracker.fit(cbs=[test(stats), DrawIDMulti()])
-        # self.tracker.fit(cbs=[yeild_frame_stats(stats), DrawScores(), DrawIDMulti()])
+        # self.tracker.fit(cbs=[test(stats), DrawIDMulti()])
+        self.tracker.fit(cbs=[yeild_frame_stats(stats),  DrawIDMulti()])
         stats.completed=True
         return "DONE"
 

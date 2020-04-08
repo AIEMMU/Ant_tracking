@@ -55,7 +55,6 @@ class VidWriterCallback(Callback):
 class DrawRect(Callback):
     _order=-1
     def after_pred(self):
-        print(f"Frame size {self.run.frame.shape}")
         [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0,255,0), 2) for c in self.run.pred]
 
 class DrawRectMutli(Callback):

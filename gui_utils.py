@@ -127,11 +127,11 @@ def get_tfms(settings):
 
 def get_pos(m):
     if m[0][0] < m[1][0]:
-        print(m[0], m[1])
+
         lPos = [m[0][0] + m[0][2], m[0][1], m[0][3]]
         rPos = [m[1][0],  m[1][1], m[1][3]]
     else:
-        print(m[0], m[1])
+
         rPos = [m[0][0] + m[0][2], m[0][1], m[0][3]]
         lPos = [m[1][0] ,  m[1][1], m[1][3]]
     return lPos, rPos
