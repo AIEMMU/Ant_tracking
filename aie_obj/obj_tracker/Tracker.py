@@ -23,6 +23,12 @@ class Tracker():
         self.add_cbfs(cb_funcs)
         self.n_iter = 0
 
+
+    def reset(self):
+        if self.stats_tracker is not None:
+            for sts in listify(self.stats_tracker):
+                sts.reset()
+
     def add_cbfs(self, cb_funcs):
         self.add_cbs(cbf() for cbf in listify(cb_funcs))
 
@@ -42,7 +48,13 @@ class Tracker():
         return self.frame
 
     def get_pred(self):
-        return [element for lis in [pred(self.frame.copy()) for pred in listify(self.obj_tracker)] for element in lis]
+        return [pred(self.frame.copy()) for pred in listify(self.obj_tracker)]
+
+    def get_stats(self):#
+        stats=[]
+        for stats_tracker, pred in zip(listify(self.stats_tracker), self.pred):
+            stats.append(stats_tracker.update(pred))
+        return stats
 
     def predict(self, frame):
         try:
@@ -53,8 +65,9 @@ class Tracker():
                 self.pred = self.get_pred()
                 self('after_pred')
                 if self.stats_tracker is not None:
-                    self.stats = self.stats_tracker.update(self.pred)
+                     self.stats = self.get_stats()
                 self('after_obj_tracker')
+
         except CancelPredictionException:
             self('after_cancel_pred')
         finally:

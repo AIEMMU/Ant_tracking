@@ -16,9 +16,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.videoPlayer.setAlignment(QtCore.Qt.AlignCenter)
 
         # Buttons!
-        self.processBtn = self.findChild(QtWidgets.QPushButton, 'processBtn')
-        self.processBtn.clicked.connect(self.saveVideo)  # remeber to pass the definition of the method
-        self.processBtn.setEnabled(False)
+        # self.processBtn = self.findChild(QtWidgets.QPushButton, 'processBtn')
+        # self.processBtn.clicked.connect(self.saveVideo)  # remeber to pass the definition of the method
+        # self.processBtn.setEnabled(False)
         #previewBtn
         self.previewBtn = self.findChild(QtWidgets.QPushButton, 'previewBtn')
         self.previewBtn.clicked.connect(self.settings)  # remeber to pass the definition of the method
@@ -34,23 +34,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.totalLeft = self.findChild(QtWidgets.QLabel, 'totalLeft')
         self.totalRight= self.findChild(QtWidgets.QLabel, 'totalRight')
-        self.f2 = partial(self.model.enableButtons, [self.previewBtn,self.exportBtn, self.displayButton,self.processBtn,  self.videoMenu])
+        self.f2 = partial(self.model.enableButtons, [self.previewBtn,self.exportBtn, self.displayButton, self.videoMenu])
 
     def LoadVideo(self):
         pixmap = self.model.load_video()
         if pixmap is None: return
-        self.model.enableButtons([self.previewBtn, self.displayButton, self.exportBtn, self.processBtn], False)
+        self.model.enableButtons([self.previewBtn, self.displayButton, self.exportBtn], False)
         pixmap = pixmap.scaled(self.videoPlayer.width(), self.videoPlayer.height(), QtCore.Qt.KeepAspectRatio)
         self.videoPlayer.setPixmap(pixmap)
         self.model.enableButtons(self.previewBtn, True)
 
-    def saveVideo(self):
-        self.model.processVideo(self.f2)
+    # def saveVideo(self):
+    #     self.model.processVideo(self.f2)
 
     def settings(self):
-        self.model.enableButtons([self.displayButton, self.processBtn], False)
+        self.model.enableButtons([self.displayButton], False)
         if self.model.settings():
-            self.model.enableButtons([self.displayButton, self.processBtn], True)
+            self.model.enableButtons([self.displayButton], True)
             pixmap = self.model.update()
             pixmap = pixmap.scaled(self.videoPlayer.width(), self.videoPlayer.height(), QtCore.Qt.KeepAspectRatio)
             self.videoPlayer.setPixmap(pixmap)

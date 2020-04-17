@@ -11,7 +11,7 @@ class SettingsViewModel():
          self.four_transform = four_transform
          self.orig_h, self.orig_w = tracker.data.video_ds[0].shape[:2]
          self.tracker.warp_frame.reset(np.array([0, 0, self.orig_w, self.orig_h]))
-         self.tracker.draw_bounding_boxes.setPos([0,0,0],[self.orig_w,0,0])
+         self.tracker.black_border.setPercent(0.01)
 
     def get_length(self):
         return len(self.tracker.data.video_dl.ds)
@@ -21,39 +21,44 @@ class SettingsViewModel():
         return self.getPixmap(self.tracker.predict_frame(i))
 
     def updateFrame(self,):
-        self.tracker.stats_tracker.reset()
+        self.tracker.reset()
         return self.getPixmap(self.tracker.predict_frame(self.i))
 
     def updateLayers(self, settings):
         ant,leaf = self.get_tfms(settings)
         self.tracker.obj_tracker[0].layers= ant
         self.tracker.obj_tracker[1].layers = leaf
+
     def selectCrop(self,):
         self.reset()
         p = self.get_corners(self.tracker.frame.copy())
         self.tracker.warp_frame.setPos(p)
         self.updateFrame()
+        self.setPos()
 
         return self.updateFrame()
 
-    def adjustROI(self, m):
-        self.lPos = (self.lPos - m[0])
-        self.rPos = self.rPos - m[0]
-        self.tracker.draw_bounding_boxes.setPos([0, 0, 0], [self.orig_w, 0, 0])
 
-    def selectROI(self, ):
-        m = self.selectRegion(self.tracker.frame.copy(), 2)
-        self.lPos, self.rPos  = self.get_pos(m)
-        self.tracker.draw_bounding_boxes.setPos(self.lPos, self.rPos)
+    # def selectROI(self, ):
+    #     # m = self.selectRegion(self.tracker.frame.copy(), 2)
+    #     # self.lPos, self.rPos  = self.get_pos(m)
+    #     # self.tracker.left_right.setPos(self.lPos, self.rPos)
+    #     # self.tracker.stats_tracker.setPos(self.lPos, self.rPos)
+    #     return self.updateFrame()
+
+    def setPos(self):
+        p = 0.15
+        self.tracker.black_border.setPercent(p)
+        self.lPos, self.rPos = self.get_pos(p, self.tracker.frame.shape[:2])
         self.tracker.left_right.setPos(self.lPos, self.rPos)
-        self.tracker.stats_tracker.setPos(self.lPos, self.rPos)
-        return self.updateFrame()
+        self.tracker.stats_tracker[0].setPos(self.lPos, self.rPos)
+        self.tracker.stats_tracker[1].setPos(self.lPos, self.rPos)
 
     def reset(self):
         self.lPos = None
         self.rPos = None
-        self.tracker.stats_tracker.reset()
-        self.tracker.draw_bounding_boxes.setPos([0, 0, 0], [self.orig_w, 0, 0])
+        self.tracker.reset()
+        self.tracker.black_border.setPercent(0.01)
         self.tracker.warp_frame.reset([0, 0, self.orig_w, self.orig_h])
 
         return self.updateFrame()

@@ -14,13 +14,14 @@ def draw_text(frame, text, pos, color=(0,0,255), font_scale=0.6,line_thickness=2
     return cv2.putText(frame, text, pos,cv2.FONT_HERSHEY_SIMPLEX, font_scale, color, line_thickness)
 
 def draw_rect(frame, startPos, endPos, color=(0,255,0), line_thickness=2):
-    print(frame.shape)
     return cv2.rectangle(frame, startPos, endPos, color, line_thickness)
 
 def draw_line(frame, startPos, endPos, color=(0,255,0), line_thickness=2):
     return cv2.line(frame, startPos, endPos, color, line_thickness)
+
 def draw_circle(frame, pos, radius=4, color = (0, 0, 255), fillMode = -1):
     return cv2.circle(frame, pos, radius, color, fillMode)
+
 def bb(c):
     x,y,w,h = cv2.boundingRect(c)
     return (x,y,x+w,y+h)
@@ -42,6 +43,7 @@ def nms(centroids, thresh=0.5):
     centroids = non_max_suppression_fast(np.array(centroids), 0.5)
     centroids = [tuple(c) for c in centroids]
     return centroids
+
 def get_centroids(contours, min_value=100, max_value=500,id=None):
     centroids = []
     for c in contours:
@@ -78,7 +80,7 @@ def clahe(img, clipLimit=2., tileGridSize= (8,8)):
 def brightness(img, alpha=3, beta=20):
     return cv2.convertScaleAbs(img.copy(), alpha=alpha, beta=beta)
 
-def adaptThreshold(img,blurSize=(5,5),thresh= 255, block_size=51, offset=20 ):
+def adaptThreshold(img,blurSize=(5,5),thresh= 255, block_size=51, offset=1 ):
     blurSize = (blurSize, blurSize) if isinstance(blurSize, int) else tuple(blurSize)
     fgMask = cv2.blur(img.copy(), blurSize)
     fgMask = make_gray(fgMask)

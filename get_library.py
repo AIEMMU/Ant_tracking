@@ -12,14 +12,13 @@ from left_right import *
 
 def get_ant_tracker():
     # return obj_tracker([cv2.pyrDown,brightness,   adaptThreshold, getContours, partial(get_centroids_pyrdown, id='ant')])
-    return obj_tracker([ cv2.pyrDown,brightness, adaptThreshold,addBorder, getContours, partial(get_centroids_pyrdown,min_value=10, id='ant')])
+    return obj_tracker([ cv2.pyrDown,brightness, adaptThreshold,addBorder, getContours, partial(get_centroids_pyrdown,min_value=10)])
 
 def get_leaf_tracker():
-    return obj_tracker([cv2.pyrDown, make_hsv, color_mask,addBorder, getContours, partial(get_centroids_pyrdown, min_value=50, max_value = 500,id='leaf')])
+    return obj_tracker([cv2.pyrDown, make_hsv, color_mask,addBorder, getContours, partial(get_centroids_pyrdown, min_value=50, max_value = 500)])
 
 def get_tracker(data):
     h,w = data.video_ds[0].shape[:2]
-    lr = partial(LeftRightCallback, LeftRight(TrackableObject, [0,0,0], [0,0,0]))
-    return Tracker([get_ant_tracker(),get_leaf_tracker() ], data,CentroidTrackerLR(maxDisappeared=10, lpos=w//8,rpos=w-(w//8)),
-                   cbs=[DrawRectMutli(), WarpFrame([0, 0, w, h], four_point_transform),
-                        DrawBoundingBoxes([0, 0, 0], [0, 0, 0])],cb_funcs =lr)
+    lr = partial(LeftRightCallback, LeftRight(TrackableObject, 0, 0))
+    return Tracker([get_ant_tracker(),get_leaf_tracker()], data,stats_tracker=[CentroidTrackerLR(maxDisappeared=10, id='ant'), CentroidTrackerLR(maxDisappeared=10, id='leaf')],
+                   cbs=[DrawRectMutli(), WarpFrame([0, 0, w, h], four_point_transform),BlackBorderCallback()], cb_funcs=lr)

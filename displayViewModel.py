@@ -27,12 +27,11 @@ class DisplayViewModel():
         return self.getPixmap(self.tracker.predict_frame(0))
 
     def settings(self):
-        model = SettingsViewModel(self.tracker,getPixmap, selectRegion, get_tfms, get_pos, set_values, getCorners, four_point_transform)
+        model = SettingsViewModel(self.tracker,getPixmap, selectRegion, get_tfms, get_positions, set_values, getCorners, four_point_transform)
         settings = SettingsWindow(model)
         settings.exec_()
         try:
             if model.lPos is not None:
-                print("setting tracker")
                 self.tracker.left_right.setPos(model.lPos, model.rPos)
                 return True
         except:
@@ -56,6 +55,7 @@ class DisplayViewModel():
     def execute_this_fn(self, stats, progress_callback):
         progress_callback.emit(stats)
         # self.tracker.fit(cbs=[test(stats), DrawIDMulti()])
+        print("Hey")
         self.tracker.fit(cbs=[yeild_frame_stats(stats),  DrawIDMulti()])
         stats.completed=True
         return "DONE"
@@ -69,21 +69,21 @@ class DisplayViewModel():
     def thread_complete(self):
         print("THREAD COMPLETE!")
 
-    def processVideo(self, f2):
-        f2(False)
-        fn, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Save output", "", "Video Files (*.mp4)")
-        if fn=='':
-            f2(True)
-            return False
-        pb = ProgressBar()
-        progress = Progress(pb, QApplication.processEvents)
-        progress.x = 0
-        self.tracker.fit( cbs = [
-            VidWriterCallback(VidWriter(fn, self.tracker.frame.shape[1], self.tracker.frame.shape[0])),
-            yeild_progression(progress), DrawScores()])
-        pb.close()
-        f2(True)
-        return True
+    # def processVideo(self, f2):
+    #     f2(False)
+    #     fn, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Save output", "", "Video Files (*.mp4)")
+    #     if fn=='':
+    #         f2(True)
+    #         return False
+    #     pb = ProgressBar()
+    #     progress = Progress(pb, QApplication.processEvents)
+    #     progress.x = 0
+    #     self.tracker.fit( cbs = [
+    #         VidWriterCallback(VidWriter(fn, self.tracker.frame.shape[1], self.tracker.frame.shape[0])),
+    #         yeild_progression(progress), DrawScores(), DrawIDMulti()])
+    #     pb.close()
+    #     f2(True)
+    #     return True
 
     def export(self, vm):
         fn, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Save output csv file", "", "Csv Files (*.csv)")

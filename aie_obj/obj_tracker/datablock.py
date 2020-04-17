@@ -29,10 +29,12 @@ class DatasetThreaded(Dataset):
         self.stopped = False
 
     def start(self):
+        self.stopped = False
         t = Thread(target=self.update, args=())
         t.daemon = True
         t.start()
         return self
+
     def read_video(self):
         self.ret, self.frame = self.x.read()
 
@@ -82,6 +84,7 @@ class DataLoader_skipMT(DataLoader_skip):
             if i % self.skip!=0:continue
             yield frame
         self.ds.stop()
+
 class DataBunch():
     def __init__(self, video_dl):
         self.video_dl = video_dl

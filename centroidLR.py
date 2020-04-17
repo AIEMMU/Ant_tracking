@@ -4,12 +4,12 @@ from scipy.optimize import linear_sum_assignment
 
 
 class CentroidTrackerLR(CentroidTracker):
-    def __init__(self, maxDisappeared=50,maxDistance=50, lpos=0, rpos=0,):
+    def __init__(self, maxDisappeared=50,maxDistance=50, lpos=0, rpos=0,id=''):
         # print(maxDisappeared,maxDistance)
         super().__init__(maxDisappeared=maxDisappeared, maxDistance=maxDistance)
         self.lpos, self.rpos = lpos,rpos
+        self.id = id
         self.removed=[]
-        self.id='ant'
 
     def reset(self):
         super().reset()
@@ -17,7 +17,10 @@ class CentroidTrackerLR(CentroidTracker):
     def register(self, centroid):
         # when registering an object we use the next available object
         # ID to store the centroid
-        # if centroid[0] >=self.lpos and centroid[0]<= self.rpos:
+        # if centroid[0] < self.lpos - 10:
+        #     return
+        # elif centroid[0] > self.rpos + 10:
+        #     return
         id = f'{self.id}_{self.nextObjectID}'
         self.objects[id] = centroid
         self.disappeared[id] = 0
@@ -29,8 +32,9 @@ class CentroidTrackerLR(CentroidTracker):
     def deregister(self, objectID):
         # to deregister an object ID we delete the object ID from
         # both of our respective dictionaries
-        del self.objects[objectID]
-        del self.disappeared[objectID]
+        super().deregister(objectID)
+        # del self.objects[objectID]
+        # del self.disappeared[objectID]
         self.removed.append(objectID)
 
     def update(self, rects):  #
@@ -41,11 +45,13 @@ class CentroidTrackerLR(CentroidTracker):
             # loop over any existing tracked objects and mark them
             # as disappeared
             for objectID in list(self.disappeared.keys()):
+
                 self.disappeared[objectID] += 1
 
                 # if we have reached a maximum number of consecutive
                 # frames where a given object has been marked as
                 # missing, deregister it
+
                 if self.disappeared[objectID] > self.maxDisappeared:
                     self.deregister(objectID)
 
@@ -55,20 +61,17 @@ class CentroidTrackerLR(CentroidTracker):
 
         # initialize an array of input centroids for the current frame
         inputCentroids = np.zeros((len(rects), 2), dtype="int")
-        ids = ['']*len(rects)
         # loop over the bounding box rectangles
-        for (i,((startX, startY, endX, endY), id)) in enumerate(rects):
+        for (i,(startX, startY, endX, endY)) in enumerate(rects):
             # use the bounding box coordinates to derive the centroid
             cX = int((startX + endX) / 2.0)
             cY = int((startY + endY) / 2.0)
             inputCentroids[i] = (cX, cY)
-            ids[i] = id
 
         # if we are currently not tracking any objects take the input
         # centroids and register each of them
         if len(self.objects) == 0:
             for i in range(0, len(inputCentroids)):
-                self.id = ids[i]
                 self.register(inputCentroids[i])
 
         # otherwise, are are currently tracking objects so we need to
@@ -90,15 +93,12 @@ class CentroidTrackerLR(CentroidTracker):
             # indexes based on their minimum values so that the row
             # with the smallest value as at the *front* of the index
             # list
-            # rows = D.min(axis=1).argsort()
+            rows = D.min(axis=1).argsort()
             #
             # # next, we perform a similar process on the columns by
             # # finding the smallest value in each column and then
             # # sorting using the previously computed row index list
-            # cols = D.argmin(axis=1)[rows]
-            # print("hey there sailor", rows,row_ings)
-            # print("Hey there sailor 2.0",cols,col_inds)
-            #
+            cols = D.argmin(axis=1)[rows]
             # # in order to determine if we need to update, register,
             # # or deregister an object we need to keep track of which
             # # of the rows and column indexes we have already examined
@@ -106,11 +106,13 @@ class CentroidTrackerLR(CentroidTracker):
             usedCols = set()
 
             # loop over the combination of the (row, column) index
-            # tuples
-            for (row, col) in zip(row_ings, col_inds):
+            # tuples#
+            p =[]
+            for (row, col) in zip(rows,cols):#, col_inds):
                 # if we have already examined either the row or
                 # column value before, ignore it
                 # val
+
                 if row in usedRows or col in usedCols:
                     continue
                 if D[row, col] > self.maxDistance: continue
@@ -118,9 +120,9 @@ class CentroidTrackerLR(CentroidTracker):
                 # set its new centroid, and reset the disappeared
                 # counter
                 objectID = objectIDs[row]
-                self.objects[objectID] = inputCentroids[col]
+                c = inputCentroids[col]
+                self.objects[objectID] = c
                 self.disappeared[objectID] = 0
-
                 # indicate that we have examined each of the row and
                 # column indexes, respectively
                 usedRows.add(row)

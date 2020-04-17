@@ -112,13 +112,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="processBtn">
-        <property name="text">
-         <string>Process</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="exportBtn">
         <property name="text">
          <string>Export Stats</string>
@@ -135,7 +128,7 @@
      <x>0</x>
      <y>0</y>
      <width>1087</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -14,8 +14,8 @@ class SettingsWindow(QtWidgets.QDialog):
         self.videoSlider.valueChanged.connect(self.sliderChanged)
         self.videoSlider.setMaximum(self.model.get_length())
 
-        self.selectROI = self.findChild(QtWidgets.QPushButton, f'selectROI')
-        self.selectROI.clicked.connect(self.roiSelection)
+        # self.selectROI = self.findChild(QtWidgets.QPushButton, f'selectROI')
+        # self.selectROI.clicked.connect(self.roiSelection)
 
         self.selectROI = self.findChild(QtWidgets.QPushButton, f'selectCrop')
         self.selectROI.clicked.connect(self.cropSelection)
@@ -48,9 +48,9 @@ class SettingsWindow(QtWidgets.QDialog):
         pixmap = self.model.selectCrop()
         self.set_pixmap(pixmap)
 
-    def roiSelection(self):
-        pixmap = self.model.selectROI()
-        self.set_pixmap(pixmap)
+    # def roiSelection(self):
+    #     pixmap = self.model.selectROI()
+    #     self.set_pixmap(pixmap)
 
     def sliderChanged(self):
         settings = self.get_sliderSettings()

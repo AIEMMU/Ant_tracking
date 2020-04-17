@@ -18,7 +18,7 @@ class FitStartCallBack(Callback):
     def begin_fit(self):
         self.run.n_iter = 0
         if self.run.stats_tracker is not None:
-            self.run.stats_tracker.reset()
+            self.run.reset()
 
     def after_pred(self):
         self.run.n_iter += 1
@@ -60,7 +60,9 @@ class DrawRect(Callback):
 class DrawRectMutli(Callback):
     _order=-1
     def after_pred(self):
-        [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0, 255, 0), 2) for c,i in self.run.pred]
+        for pred in self.run.pred:
+            [draw_rect(self.run.frame, (c[:2]), (c[2:]), (0, 255, 0), 2) for c in pred]
+
 
 
 class DrawVerticalLines(Callback):
@@ -97,14 +99,27 @@ class DrawID(Callback):
             text = f'ID {obj}'
             draw_text(self.run.frame, text, (centroid[0]-10, centroid[1]-10))
             draw_circle(self.run.frame, (centroid[0], centroid[1]))
+
 class DrawIDMulti(Callback):
     _order=2
     def after_pred(self):
-        for obj, centroid in self.run.stats[0].items():
-            text = f'ID {obj}'
-            draw_text(self.run.frame, text, (centroid[0]-10, centroid[1]-10))
-            draw_circle(self.run.frame, (centroid[0], centroid[1]))
+        for stats in self.stats:
+            for obj, centroid in stats[0].items():
+                text = f'{obj}'
+                draw_text(self.run.frame, text, (centroid[0]-10, centroid[1]-10))
+                draw_circle(self.run.frame, (centroid[0], centroid[1]))
 
+class BlackBorderCallback(Callback):
+    _order = 3
+    def __init__(self):
+        self.p = 0.01
+    def setPercent(self, p):
+        self.p = p
+    def after_pred(self):
+        h = self.run.frame.shape[0]
+        rh = int(h * self.p)
+        self.run.frame[:, 0:rh] = 0
+        self.run.frame[:, -rh:] = 0
 
 class CropFrame(Callback):
     _order=1
@@ -138,7 +153,7 @@ class WarpFrame(Callback):
 
 
 class DrawScores(Callback):
-    _order=-1
+    _order=4
     def after_pred(self):
         info = [
             ("Right", self.run.left_right.right),
@@ -157,7 +172,6 @@ class yeild_frame_stats(Callback):
         self.stats.frame = self.run.frame
         self.stats.tL = self.run.left_right.left
         self.stats.tR = self.run.left_right.right
-        #print(self.stats)
 
 class test(Callback):
     _order=3
