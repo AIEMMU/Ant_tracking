@@ -5,9 +5,9 @@ class LeftRight():
     def __init__(self, recorder = None, pos_left=0, pos_right =0):
         self.trackableObjects, self.recorder, self.pos_left, self.pos_right = {}, recorder, pos_left, pos_right
         self.trackedObjects = {}
+        self.obj_id=0
         self.left = 0
         self.right = 0
-
     def reset(self):
         self.left = 0
         self.right = 0
@@ -46,25 +46,29 @@ class LeftRight():
             to.centroids.append(centroid)
 
             if self.is_right(direction, centroid):
-                to.dir = 'right'
                 self.right += 1
-                self.updateLeftRight(objId)
+
+                self.updateLeftRight(objId, dir='right')
                 return objId
             elif self.is_left(direction, centroid):
-                to.dir = 'left'
                 self.left += 1
-                self.updateLeftRight(objId)
+
+                self.updateLeftRight(objId, dir='left')
                 return objId
         self.trackableObjects[objId] = to
 
-    def updateLeftRight(self, objID):
+    def updateLeftRight(self, objID, dir=''):
+
         try:
             to = self.trackableObjects[objID]
-            self.trackedObjects[objID] = to
+            to.dir=dir
+            id = objID.split('_')[0]+str(self.obj_id)
+            self.trackedObjects[id] = to
             del self.trackableObjects[objID]
+            self.obj_id+=1
         except:
-            print(f'')
-
+            #print(f'')
+            bb = 0
     def score(self):
         return self.left, self.right
 
@@ -96,6 +100,9 @@ class LeftRight():
         df = pd.DataFrame({'id': ids, 'cx': x, 'cy': y, 'entryFrame': entryFrame, 'dir': dir, 'distance': distances, 'speed': speeds})
         df.to_pickle(fn)
 
+
+
+
 from aie_obj.obj_tracker.callbacks import *
 
 class LeftRightCallback(Callback):
@@ -122,7 +129,7 @@ class LeftRightCallback(Callback):
                 objID = self.left_right.update(obj, centroid, self.run.n_iter)
                 if objID is not None:
                     objs.append(objID)
-        self.left, self.right = self.left_right.score()
+                self.left, self.right = self.left_right.score()
 
     def export(self, fn):
         self.left_right.export(fn)
