@@ -72,6 +72,18 @@ class DataLoader_skip:
             if i % self.skip!=0:continue
             yield frame
 
+class DataLoader_MT(DataLoader):
+    def __init__(self, ds):
+        super().__init__(ds)
+
+    def __iter__(self):
+        self.ds[0]
+        self.ds.start()
+        for i in range(len(self.ds)):
+            frame =  self.ds.read()
+            yield frame
+        self.ds.stop()
+
 class DataLoader_skipMT(DataLoader_skip):
     def __init__(self, ds, skip=4):
         super().__init__(ds,skip)
@@ -94,5 +106,5 @@ class DataBunch():
 
 
 def get_db(fn, **kwargs):
-    # return DataBunch(DataLoader_skip(Dataset(get_video(fn)),5))
-    return DataBunch(DataLoader_skipMT(DatasetThreaded(get_video(fn)), 5))
+    return DataBunch(DataLoader_MT(DatasetThreaded(get_video(fn))))
+    # return DataBunch(DataLoader_skipMT(DatasetThreaded(get_video(fn)), 2))
