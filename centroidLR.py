@@ -17,9 +17,9 @@ class CentroidTrackerLR(CentroidTracker):
     def register(self, centroid):
         # when registering an object we use the next available object
         # ID to store the centroid
-        # if centroid[0] < self.lpos - 10:
+        # if centroid[0] < self.lpos:
         #     return
-        # elif centroid[0] > self.rpos + 10:
+        # elif centroid[0] > self.rpos:
         #     return
         id = f'{self.id}_{self.nextObjectID}'
         self.objects[id] = centroid
@@ -33,8 +33,6 @@ class CentroidTrackerLR(CentroidTracker):
         # to deregister an object ID we delete the object ID from
         # both of our respective dictionaries
         super().deregister(objectID)
-        # del self.objects[objectID]
-        # del self.disappeared[objectID]
         self.removed.append(objectID)
 
     def update(self, rects):  #

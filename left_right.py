@@ -8,24 +8,27 @@ class LeftRight():
         self.obj_id=0
         self.left = 0
         self.right = 0
+
     def reset(self):
         self.left = 0
         self.right = 0
         self.trackableObjects = {}
+        self.trackedObjects = {}
+        self.obj_id = 0
 
     def setPos(self, l,r):
         self.pos_left, self.pos_right = l,r
 
     def is_right(self, dir, cur_pos):
         if dir > 0:
-            if cur_pos[0] > self.pos_right +20:# and init_x < self.pos_right[0]:
+            if cur_pos[0] > self.pos_right +10:# and init_x < self.pos_right[0]:
                 # if cur_pos[1] > self.pos_right[1] and cur_pos[1] < self.pos_right[1] + self.pos_right[2]:
                 return True
         return False
 
     def is_left(self, dir, cur_pos):
         if dir < 0:
-            if cur_pos[0] < self.pos_left -20 :#and init_x > self.pos_left[0]:
+            if cur_pos[0] < self.pos_left -10 :#and init_x > self.pos_left[0]:
                 # if cur_pos[1] > self.pos_left[1] and cur_pos[1] < self.pos_left[1] + self.pos_left[2]:
                 return True
         return False
@@ -34,9 +37,9 @@ class LeftRight():
         to = self.trackableObjects.get(objId, None)
 
         if to is None:
-            if centroid[0]< self.pos_left+10:
+            if centroid[0]< self.pos_left:
                 return #objId
-            elif centroid[0] > self.pos_right-10:
+            elif centroid[0] > self.pos_right:
                 return #objId
             to = self.recorder(objId, centroid)
             to.entryFrame = i
