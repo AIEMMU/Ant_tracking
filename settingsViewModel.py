@@ -47,7 +47,7 @@ class SettingsViewModel():
     #     return self.updateFrame()
 
     def setPos(self):
-        p = 0.15
+        p = 0.16
         self.tracker.black_border.setPercent(p)
         self.lPos, self.rPos = self.get_pos(p, self.tracker.frame.shape[:2])
         self.tracker.left_right.setPos(self.lPos, self.rPos)

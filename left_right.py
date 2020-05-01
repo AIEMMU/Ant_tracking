@@ -21,14 +21,14 @@ class LeftRight():
 
     def is_right(self, dir, cur_pos):
         if dir > 0:
-            if cur_pos[0] > self.pos_right +10:# and init_x < self.pos_right[0]:
+            if cur_pos[0] > self.pos_right +20:# and init_x < self.pos_right[0]:
                 # if cur_pos[1] > self.pos_right[1] and cur_pos[1] < self.pos_right[1] + self.pos_right[2]:
                 return True
         return False
 
     def is_left(self, dir, cur_pos):
         if dir < 0:
-            if cur_pos[0] < self.pos_left -10 :#and init_x > self.pos_left[0]:
+            if cur_pos[0] < self.pos_left -20 :#and init_x > self.pos_left[0]:
                 # if cur_pos[1] > self.pos_left[1] and cur_pos[1] < self.pos_left[1] + self.pos_left[2]:
                 return True
         return False
@@ -37,9 +37,9 @@ class LeftRight():
         to = self.trackableObjects.get(objId, None)
 
         if to is None:
-            if centroid[0]< self.pos_left:
+            if centroid[0]< self.pos_left :
                 return #objId
-            elif centroid[0] > self.pos_right:
+            elif centroid[0] > self.pos_right :
                 return #objId
             to = self.recorder(objId, centroid)
             to.entryFrame = i
@@ -90,7 +90,7 @@ class LeftRight():
                 distance += np.linalg.norm(v.centroids[j-1] - v.centroids[j])
             # 60 fps, skipping 5 frames  tp get speed per second then need a pixel measurement
             if distance==0:continue
-            speed = distance/((len(v.centroids)*5) / 60.)
+            speed = distance/((len(v.centroids)) / 60.)
             distances.append(distance)
             speeds.append(speed)
             ids.append(k)
