@@ -106,5 +106,5 @@ class DataBunch():
 
 
 def get_db(fn, **kwargs):
-    return DataBunch(DataLoader_MT(DatasetThreaded(get_video(fn))))
+    return DataBunch(DataLoader(Dataset(get_video(fn))))
     # return DataBunch(DataLoader_skipMT(DatasetThreaded(get_video(fn)), 2))
